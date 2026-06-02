@@ -1,0 +1,42 @@
+{
+  "name": "restaurant-voting-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@ai-sdk/openai": "^3.0.64",
+    "ai": "^6.0.190",
+    "fast-check": "^3.22.0",
+    "firebase": "^10.14.1",
+    "firebase-admin": "^12.7.0",
+    "framer-motion": "^12.9.4",
+    "next": "16.2.6",
+    "qrcode.react": "^4.2.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/jest-axe": "^3.5.9",
+    "@types/node": "^20.19.41",
+    "@types/react": "^19.2.15",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "16.2.6",
+    "jest": "^29.7.0",
+    "jest-axe": "^10.0.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "tailwindcss": "^4.3.0",
+    "ts-jest": "^29.3.4",
+    "typescript": "^5.9.3"
+  }
+}
