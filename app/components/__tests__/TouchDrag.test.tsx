@@ -6,28 +6,36 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import RestaurantCard from "../RestaurantCard";
 import type { Restaurant } from "@/types";
+import { makeRestaurant } from "@/test-utils/restaurant";
+import type { MotionMockProps } from "@/test-utils/motionMockProps";
 
 // Mock framer-motion — verify drag prop is passed correctly
-jest.mock("framer-motion", () => ({
-  motion: {
-    div: React.forwardRef(
-      ({ children, drag, ...props }: any, ref: any) => (
-        <div ref={ref} data-drag={drag || "false"} {...props}>
-          {children}
-        </div>
-      )
-    ),
-  },
-  useMotionValue: () => ({ get: () => 0, set: () => {} }),
-  useTransform: () => ({ get: () => 0 }),
-}));
+jest.mock("framer-motion", () => {
+  const MockMotionDiv = React.forwardRef<HTMLDivElement, MotionMockProps>(
+    ({ children, drag, ...props }, ref) => (
+      <div
+        ref={ref}
+        data-drag={(drag as string | boolean | undefined) || "false"}
+        {...(props as React.ComponentPropsWithoutRef<"div">)}
+      >
+        {children as React.ReactNode}
+      </div>
+    )
+  );
+  MockMotionDiv.displayName = "MockMotionDiv";
 
-const mockRestaurant: Restaurant = {
+  return {
+    motion: { div: MockMotionDiv },
+    useMotionValue: () => ({ get: () => 0, set: () => {} }),
+    useTransform: () => ({ get: () => 0 }),
+  };
+});
+
+const mockRestaurant: Restaurant = makeRestaurant({
   id: "place-1",
   displayName: "Test Restaurant",
   rating: 4.0,
-  photoReference: null,
-};
+});
 
 describe("Touch Drag Gesture Support (Task 11.5)", () => {
   it("RestaurantCard enables horizontal drag when active and not disabled", () => {

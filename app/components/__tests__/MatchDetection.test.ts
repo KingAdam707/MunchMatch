@@ -1,14 +1,15 @@
 import { checkForMatch } from "@/app/lib/match";
 import type { Restaurant } from "@/types";
+import { makeRestaurant } from "@/test-utils/restaurant";
 
 /**
  * Unit tests for match detection logic (Task 9.5).
  */
 
 const restaurants: Restaurant[] = [
-  { id: "r1", displayName: "Pizza Place", rating: 4.5, photoReference: null },
-  { id: "r2", displayName: "Sushi Spot", rating: 4.2, photoReference: null },
-  { id: "r3", displayName: "Taco Town", rating: 3.9, photoReference: null },
+  makeRestaurant({ id: "r1", displayName: "Pizza Place", rating: 4.5 }),
+  makeRestaurant({ id: "r2", displayName: "Sushi Spot", rating: 4.2 }),
+  makeRestaurant({ id: "r3", displayName: "Taco Town", rating: 3.9 }),
 ];
 
 describe("Match Detection Logic", () => {

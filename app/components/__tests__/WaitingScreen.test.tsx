@@ -6,6 +6,7 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import WaitingScreen from "../WaitingScreen";
 import type { Restaurant } from "@/types";
+import { makeRestaurant } from "@/test-utils/restaurant";
 
 // Mock firebase/firestore
 const mockOnSnapshot = jest.fn();
@@ -20,9 +21,9 @@ jest.mock("firebase/firestore", () => ({
 jest.mock("@/app/lib/firebase", () => ({ db: {} }));
 
 const mockRestaurants: Restaurant[] = [
-  { id: "r1", displayName: "Pizza Place", rating: 4.5, photoReference: null },
-  { id: "r2", displayName: "Sushi Spot", rating: 4.2, photoReference: null },
-  { id: "r3", displayName: "Taco Town", rating: 3.9, photoReference: null },
+  makeRestaurant({ id: "r1", displayName: "Pizza Place", rating: 4.5 }),
+  makeRestaurant({ id: "r2", displayName: "Sushi Spot", rating: 4.2 }),
+  makeRestaurant({ id: "r3", displayName: "Taco Town", rating: 3.9 }),
 ];
 
 describe("WaitingScreen", () => {
@@ -31,8 +32,8 @@ describe("WaitingScreen", () => {
   });
 
   function setupSnapshots(
-    participantsDocs: any[],
-    votesDocs: any[]
+    participantsDocs: Array<{ id: string; data: () => Record<string, unknown> }>,
+    votesDocs: Array<{ id: string; data: () => Record<string, unknown> }>
   ) {
     let callCount = 0;
     mockOnSnapshot.mockImplementation((_, callback) => {

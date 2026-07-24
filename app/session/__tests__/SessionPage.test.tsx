@@ -6,6 +6,7 @@ import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import SessionPage from "../[sessionId]/page";
 import { AuthContext } from "@/app/context/AuthContext";
+import { makeRestaurant } from "@/test-utils/restaurant";
 
 // --- Mocks ---
 
@@ -70,7 +71,7 @@ jest.mock("@/app/components/ErrorScreen", () => {
 
 // Mock MatchScreen
 jest.mock("@/app/components/MatchScreen", () => {
-  return function MockMatchScreen({ restaurant }: any) {
+  return function MockMatchScreen({ restaurant }: { restaurant?: { displayName: string } }) {
     return <div data-testid="match-screen">Match: {restaurant?.displayName}</div>;
   };
 });
@@ -160,7 +161,7 @@ describe("SessionPage", () => {
           hostUid: "host-uid",
           state: "match",
           restaurants: [
-            { id: "r1", displayName: "Pizza Place", rating: 4.5, photoReference: null },
+            makeRestaurant({ id: "r1", displayName: "Pizza Place", rating: 4.5 }),
           ],
           matchedRestaurantId: "r1",
           createdAt: new Date(),

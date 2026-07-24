@@ -10,6 +10,7 @@ import PromptForm from "../PromptForm";
 import WaitingScreen from "../WaitingScreen";
 import NoMatchScreen from "../NoMatchScreen";
 import type { Restaurant } from "@/types";
+import { makeRestaurant } from "@/test-utils/restaurant";
 
 expect.extend(toHaveNoViolations);
 
@@ -53,7 +54,7 @@ describe("Accessibility Tests (Task 12.1)", () => {
   describe("Waiting Screen", () => {
     it("should have no accessibility violations", async () => {
       const mockRestaurants: Restaurant[] = [
-        { id: "r1", displayName: "Test Restaurant", rating: 4.5, photoReference: null },
+        makeRestaurant({ id: "r1", displayName: "Test Restaurant", rating: 4.5 }),
       ];
       const { container } = render(
         <WaitingScreen sessionId="test-session" restaurants={mockRestaurants} />

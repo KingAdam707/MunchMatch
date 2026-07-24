@@ -1,5 +1,6 @@
 import * as fc from "fast-check";
 import type { Restaurant } from "@/types";
+import { restaurantExtraFieldsArb } from "@/test-utils/restaurant";
 
 /**
  * Property-based tests for Swipe Deck and Restaurant Card (Task 8).
@@ -11,6 +12,7 @@ const restaurantArb = fc.record({
   displayName: fc.string({ minLength: 1, maxLength: 100 }),
   rating: fc.double({ min: 0, max: 5, noNaN: true }),
   photoReference: fc.oneof(fc.constant(null), fc.string({ minLength: 1 })),
+  ...restaurantExtraFieldsArb,
 });
 
 describe("Property-based tests: Swipe Deck", () => {

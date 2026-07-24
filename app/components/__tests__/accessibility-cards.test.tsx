@@ -9,48 +9,66 @@ import { AuthContext } from "@/app/context/AuthContext";
 import RestaurantCard from "../RestaurantCard";
 import MatchScreen from "../MatchScreen";
 import type { Restaurant } from "@/types";
+import { makeRestaurant } from "@/test-utils/restaurant";
+import type { MotionMockProps } from "@/test-utils/motionMockProps";
 
 expect.extend(toHaveNoViolations);
 
 // Mock framer-motion
-jest.mock("framer-motion", () => ({
-  motion: {
-    div: React.forwardRef(({ children, ...props }: any, ref: any) => {
+jest.mock("framer-motion", () => {
+  const MockMotionDiv = React.forwardRef<HTMLDivElement, MotionMockProps>(
+    ({ children, ...props }, ref) => {
       // Filter out non-DOM props
       const {
         drag, dragConstraints, dragElastic, dragSnapToOrigin,
         onDragEnd, initial, animate, transition, whileHover,
         whileTap, exit, ...domProps
       } = props;
-      return <div ref={ref} {...domProps}>{children}</div>;
-    }),
-    main: React.forwardRef(({ children, ...props }: any, ref: any) => {
+      return (
+        <div ref={ref} {...(domProps as React.ComponentPropsWithoutRef<"div">)}>
+          {children as React.ReactNode}
+        </div>
+      );
+    }
+  );
+  MockMotionDiv.displayName = "MockMotionDiv";
+
+  const MockMotionMain = React.forwardRef<HTMLElement, MotionMockProps>(
+    ({ children, ...props }, ref) => {
       const { initial, animate, transition, ...domProps } = props;
-      return <main ref={ref} {...domProps}>{children}</main>;
-    }),
-  },
-  useMotionValue: () => ({ get: () => 0, set: () => {} }),
-  useTransform: () => ({ get: () => 0 }),
-}));
+      return (
+        <main ref={ref} {...(domProps as React.ComponentPropsWithoutRef<"main">)}>
+          {children as React.ReactNode}
+        </main>
+      );
+    }
+  );
+  MockMotionMain.displayName = "MockMotionMain";
+
+  return {
+    motion: { div: MockMotionDiv, main: MockMotionMain },
+    useMotionValue: () => ({ get: () => 0, set: () => {} }),
+    useTransform: () => ({ get: () => 0 }),
+  };
+});
 
 // Mock next/navigation
 jest.mock("next/navigation", () => ({
   useRouter: () => ({ push: jest.fn() }),
 }));
 
-const mockRestaurant: Restaurant = {
+const mockRestaurant: Restaurant = makeRestaurant({
   id: "place-123",
   displayName: "Taco Palace",
   rating: 4.5,
   photoReference: "https://example.com/photo.jpg",
-};
+});
 
-const mockRestaurantNoPhoto: Restaurant = {
+const mockRestaurantNoPhoto: Restaurant = makeRestaurant({
   id: "place-456",
   displayName: "Burger Barn",
   rating: 3.8,
-  photoReference: null,
-};
+});
 
 function renderWithAuth(ui: React.ReactElement) {
   return render(
@@ -105,12 +123,11 @@ describe("Accessibility Tests — Card Components (Task 12.1)", () => {
 
   describe("MatchScreen with disabled Google Maps button", () => {
     it("should have no accessibility violations", async () => {
-      const restaurantNoId: Restaurant = {
+      const restaurantNoId: Restaurant = makeRestaurant({
         id: "",
         displayName: "No ID Place",
         rating: 4.0,
-        photoReference: null,
-      };
+      });
       const { container } = renderWithAuth(
         <MatchScreen restaurant={restaurantNoId} hostUid="host-uid" />
       );

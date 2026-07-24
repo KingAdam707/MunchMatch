@@ -10,7 +10,7 @@ Deciding where to eat as a group is painful. MunchMatch solves it with a simple 
 
 1. **The host describes the vibe** — type something like *"4 friends, Mexican food, medium budget, downtown Belfast"* into the prompt box.
 2. **AI parses the prompt** — GPT-4o-mini extracts structured preferences (cuisine, budget, group size, location) from the free-text input.
-3. **Restaurants are fetched** — the Google Places API returns up to 5 matching restaurants.
+3. **Restaurants are fetched** — the Google Places API returns up to 10 matching restaurants.
 4. **A session is created** — the host gets a shareable link and waits in the lobby while friends join.
 5. **Everyone swipes** — participants drag cards left (reject) or right (accept), or use the ✗/✓ buttons. Each vote is written to Firestore in real time.
 6. **Match detection runs live** — as votes come in, the app checks whether all active participants have accepted the same restaurant. The moment they do, the session transitions to the match screen.

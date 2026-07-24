@@ -7,47 +7,52 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import SwipeDeck from "../SwipeDeck";
 import { AuthContext } from "@/app/context/AuthContext";
 import type { Restaurant } from "@/types";
+import { makeRestaurant } from "@/test-utils/restaurant";
+import type { MotionMockProps } from "@/test-utils/motionMockProps";
 
 // Mock framer-motion
-jest.mock("framer-motion", () => ({
-  motion: {
-    div: React.forwardRef(
-      (
-        {
-          children,
-          onDragEnd,
-          onKeyDown,
-          className,
-          tabIndex,
-          role,
-          "aria-label": ariaLabel,
-          "data-testid": testId,
-          ...rest
-        }: any,
-        ref: any
-      ) => (
-        <div
-          ref={ref}
-          className={className}
-          tabIndex={tabIndex}
-          role={role}
-          aria-label={ariaLabel}
-          data-testid={testId}
-          onKeyDown={onKeyDown}
-          {...rest}
-        >
-          {children}
-        </div>
-      )
-    ),
-  },
-  useMotionValue: () => ({ get: () => 0, set: () => {} }),
-  useTransform: () => ({ get: () => 0 }),
-}));
+jest.mock("framer-motion", () => {
+  const MockMotionDiv = React.forwardRef<HTMLDivElement, MotionMockProps>(
+    (
+      {
+        children,
+        onDragEnd: _onDragEnd,
+        onKeyDown,
+        className,
+        tabIndex,
+        role,
+        "aria-label": ariaLabel,
+        "data-testid": testId,
+        ...rest
+      },
+      ref
+    ) => (
+      <div
+        ref={ref}
+        className={className as string | undefined}
+        tabIndex={tabIndex as number | undefined}
+        role={role as string | undefined}
+        aria-label={ariaLabel as string | undefined}
+        data-testid={testId as string | undefined}
+        onKeyDown={onKeyDown as React.KeyboardEventHandler<HTMLDivElement> | undefined}
+        {...(rest as React.ComponentPropsWithoutRef<"div">)}
+      >
+        {children as React.ReactNode}
+      </div>
+    )
+  );
+  MockMotionDiv.displayName = "MockMotionDiv";
+
+  return {
+    motion: { div: MockMotionDiv },
+    useMotionValue: () => ({ get: () => 0, set: () => {} }),
+    useTransform: () => ({ get: () => 0 }),
+  };
+});
 
 // Mock firebase/firestore
 const mockSetDoc = jest.fn();
-const mockOnSnapshot = jest.fn(() => jest.fn());
+const mockOnSnapshot = jest.fn<jest.Mock, unknown[]>(() => jest.fn());
 jest.mock("firebase/firestore", () => ({
   doc: jest.fn(),
   setDoc: (...args: unknown[]) => mockSetDoc(...args),
@@ -62,9 +67,9 @@ jest.mock("@/app/lib/firebase", () => ({
 }));
 
 const mockRestaurants: Restaurant[] = [
-  { id: "r1", displayName: "Pizza Place", rating: 4.5, photoReference: null },
-  { id: "r2", displayName: "Sushi Spot", rating: 4.2, photoReference: null },
-  { id: "r3", displayName: "Taco Town", rating: 3.9, photoReference: null },
+  makeRestaurant({ id: "r1", displayName: "Pizza Place", rating: 4.5 }),
+  makeRestaurant({ id: "r2", displayName: "Sushi Spot", rating: 4.2 }),
+  makeRestaurant({ id: "r3", displayName: "Taco Town", rating: 3.9 }),
 ];
 
 function renderWithAuth(ui: React.ReactElement) {

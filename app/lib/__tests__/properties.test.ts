@@ -11,6 +11,7 @@ import { computeSwipeDirection } from "../swipe";
 import { checkForMatch } from "../match";
 import { buildGoogleMapsDeepLink, buildUberEatsDeepLink } from "../deep-links";
 import type { Restaurant } from "@/types";
+import { makeRestaurant, restaurantExtraFieldsArb } from "@/test-utils/restaurant";
 
 // ---------------------------------------------------------------------------
 // Arbitraries
@@ -21,6 +22,7 @@ const restaurantArb = fc.record<Restaurant>({
   displayName: fc.string({ minLength: 1, maxLength: 100 }),
   rating: fc.float({ min: 0, max: 5, noNaN: true }),
   photoReference: fc.option(fc.string({ minLength: 1 }), { nil: null }),
+  ...restaurantExtraFieldsArb,
 });
 
 const restaurantWithIdArb = restaurantArb.filter((r) => r.id.length > 0);
@@ -120,12 +122,13 @@ describe(
           // For each participant, a random subset is "active"
           fc.float({ min: 0, max: 1, noNaN: true }),
           (restaurantIds, uids, activeFraction) => {
-            const restaurants: Restaurant[] = restaurantIds.map((id) => ({
-              id,
-              displayName: `Restaurant ${id}`,
-              rating: 4.0,
-              photoReference: null,
-            }));
+            const restaurants: Restaurant[] = restaurantIds.map((id) =>
+              makeRestaurant({
+                id,
+                displayName: `Restaurant ${id}`,
+                rating: 4.0,
+              })
+            );
 
             // Deterministically split uids into active/inactive
             const activeParticipants = uids.filter(
@@ -170,12 +173,13 @@ describe(
             maxLength: 5,
           }),
           (restaurantIds, uids) => {
-            const restaurants: Restaurant[] = restaurantIds.map((id) => ({
-              id,
-              displayName: `R-${id}`,
-              rating: 4.0,
-              photoReference: null,
-            }));
+            const restaurants: Restaurant[] = restaurantIds.map((id) =>
+              makeRestaurant({
+                id,
+                displayName: `R-${id}`,
+                rating: 4.0,
+              })
+            );
 
             // uid[0] rejects everything, uid[1..] accepts everything
             const votes: Record<string, Record<string, "accept" | "reject">> = {};

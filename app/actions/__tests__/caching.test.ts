@@ -2,6 +2,7 @@ import { retryFetchRestaurants } from "../session";
 import { fetchRestaurants } from "../places-client";
 import { isCacheComplete } from "@/app/lib/cache";
 import { adminDb } from "@/app/lib/firebase-admin";
+import { makeRestaurant } from "@/test-utils/restaurant";
 
 // Mock dependencies
 jest.mock("../places-client");
@@ -30,8 +31,8 @@ describe("Restaurant Data Caching (Task 7)", () => {
     hostUid: mockHostUid,
     state: "error",
     restaurants: [
-      { id: "r1", displayName: "Pizza Place", rating: 4.5, photoReference: "photo1" },
-      { id: "r2", displayName: "Pasta House", rating: 4.2, photoReference: null },
+      makeRestaurant({ id: "r1", displayName: "Pizza Place", rating: 4.5, photoReference: "photo1" }),
+      makeRestaurant({ id: "r2", displayName: "Pasta House", rating: 4.2 }),
     ],
     matchedRestaurantId: null,
     createdAt: new Date(),
@@ -96,7 +97,7 @@ describe("Restaurant Data Caching (Task 7)", () => {
 
     // Mock fetchRestaurants success
     mockFetchRestaurants.mockResolvedValue([
-      { id: "r1", displayName: "New Place", rating: 4.0, photoReference: null },
+      makeRestaurant({ id: "r1", displayName: "New Place", rating: 4.0 }),
     ]);
 
     const result = await retryFetchRestaurants(
@@ -127,7 +128,7 @@ describe("Restaurant Data Caching (Task 7)", () => {
     mockIsCacheComplete.mockReturnValue(false);
 
     mockFetchRestaurants.mockResolvedValue([
-      { id: "r1", displayName: "New Place", rating: 4.0, photoReference: null },
+      makeRestaurant({ id: "r1", displayName: "New Place", rating: 4.0 }),
     ]);
 
     const result = await retryFetchRestaurants(

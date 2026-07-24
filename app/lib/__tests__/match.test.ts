@@ -1,10 +1,11 @@
 import { checkForMatch } from "../match";
 import type { Restaurant } from "@/types";
+import { makeRestaurant } from "@/test-utils/restaurant";
 
 const restaurants: Restaurant[] = [
-  { id: "r1", displayName: "Pizza Place", rating: 4.2, photoReference: null },
-  { id: "r2", displayName: "Burger Bar", rating: 4.5, photoReference: null },
-  { id: "r3", displayName: "Sushi Spot", rating: 4.8, photoReference: null },
+  makeRestaurant({ id: "r1", displayName: "Pizza Place", rating: 4.2 }),
+  makeRestaurant({ id: "r2", displayName: "Burger Bar", rating: 4.5 }),
+  makeRestaurant({ id: "r3", displayName: "Sushi Spot", rating: 4.8 }),
 ];
 
 describe("checkForMatch", () => {

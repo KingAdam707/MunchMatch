@@ -7,18 +7,33 @@ import { render, screen } from "@testing-library/react";
 import MatchScreen from "../MatchScreen";
 import { AuthContext } from "@/app/context/AuthContext";
 import type { Restaurant } from "@/types";
+import { makeRestaurant } from "@/test-utils/restaurant";
+import type { MotionMockProps } from "@/test-utils/motionMockProps";
 
 // Mock framer-motion
-jest.mock("framer-motion", () => ({
-  motion: {
-    main: React.forwardRef(({ children, ...props }: any, ref: any) => (
-      <main ref={ref} {...props}>{children}</main>
-    )),
-    div: React.forwardRef(({ children, ...props }: any, ref: any) => (
-      <div ref={ref} {...props}>{children}</div>
-    )),
-  },
-}));
+jest.mock("framer-motion", () => {
+  const MockMotionMain = React.forwardRef<HTMLElement, MotionMockProps>(
+    ({ children, ...props }, ref) => (
+      <main ref={ref} {...(props as React.ComponentPropsWithoutRef<"main">)}>
+        {children as React.ReactNode}
+      </main>
+    )
+  );
+  MockMotionMain.displayName = "MockMotionMain";
+
+  const MockMotionDiv = React.forwardRef<HTMLDivElement, MotionMockProps>(
+    ({ children, ...props }, ref) => (
+      <div ref={ref} {...(props as React.ComponentPropsWithoutRef<"div">)}>
+        {children as React.ReactNode}
+      </div>
+    )
+  );
+  MockMotionDiv.displayName = "MockMotionDiv";
+
+  return {
+    motion: { main: MockMotionMain, div: MockMotionDiv },
+  };
+});
 
 // Mock next/navigation
 const mockPush = jest.fn();
@@ -26,19 +41,18 @@ jest.mock("next/navigation", () => ({
   useRouter: () => ({ push: mockPush }),
 }));
 
-const mockRestaurant: Restaurant = {
+const mockRestaurant: Restaurant = makeRestaurant({
   id: "place-123",
   displayName: "Taco Palace",
   rating: 4.5,
   photoReference: "https://example.com/photo.jpg",
-};
+});
 
-const mockRestaurantNoId: Restaurant = {
+const mockRestaurantNoId: Restaurant = makeRestaurant({
   id: "",
   displayName: "Mystery Spot",
   rating: 3.8,
-  photoReference: null,
-};
+});
 
 function renderWithAuth(
   ui: React.ReactElement,

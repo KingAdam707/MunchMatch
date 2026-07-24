@@ -6,58 +6,62 @@ import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import RestaurantCard from "../RestaurantCard";
 import type { Restaurant } from "@/types";
+import { makeRestaurant } from "@/test-utils/restaurant";
+import type { MotionMockProps } from "@/test-utils/motionMockProps";
 
 // Mock framer-motion to avoid animation issues in tests
-jest.mock("framer-motion", () => ({
-  motion: {
-    div: React.forwardRef(
-      (
-        {
-          children,
-          onDragEnd,
-          onKeyDown,
-          className,
-          tabIndex,
-          role,
-          "aria-label": ariaLabel,
-          "data-testid": testId,
-          ...rest
-        }: any,
-        ref: any
-      ) => (
-        <div
-          ref={ref}
-          className={className}
-          tabIndex={tabIndex}
-          role={role}
-          aria-label={ariaLabel}
-          data-testid={testId}
-          onKeyDown={onKeyDown}
-          data-ondragend={onDragEnd ? "true" : undefined}
-          {...rest}
-        >
-          {children}
-        </div>
-      )
-    ),
-  },
-  useMotionValue: () => ({ get: () => 0, set: () => {} }),
-  useTransform: () => ({ get: () => 0 }),
-}));
+jest.mock("framer-motion", () => {
+  const MockMotionDiv = React.forwardRef<HTMLDivElement, MotionMockProps>(
+    (
+      {
+        children,
+        onDragEnd,
+        onKeyDown,
+        className,
+        tabIndex,
+        role,
+        "aria-label": ariaLabel,
+        "data-testid": testId,
+        ...rest
+      },
+      ref
+    ) => (
+      <div
+        ref={ref}
+        className={className as string | undefined}
+        tabIndex={tabIndex as number | undefined}
+        role={role as string | undefined}
+        aria-label={ariaLabel as string | undefined}
+        data-testid={testId as string | undefined}
+        onKeyDown={onKeyDown as React.KeyboardEventHandler<HTMLDivElement> | undefined}
+        data-ondragend={onDragEnd ? "true" : undefined}
+        {...(rest as React.ComponentPropsWithoutRef<"div">)}
+      >
+        {children as React.ReactNode}
+      </div>
+    )
+  );
+  MockMotionDiv.displayName = "MockMotionDiv";
 
-const mockRestaurant: Restaurant = {
+  return {
+    motion: { div: MockMotionDiv },
+    useMotionValue: () => ({ get: () => 0, set: () => {} }),
+    useTransform: () => ({ get: () => 0 }),
+  };
+});
+
+const mockRestaurant: Restaurant = makeRestaurant({
   id: "place-123",
   displayName: "Taco Palace",
   rating: 4.5,
   photoReference: "photos/abc123",
-};
+});
 
-const mockRestaurantNoPhoto: Restaurant = {
+const mockRestaurantNoPhoto: Restaurant = makeRestaurant({
   id: "place-456",
   displayName: "Burger Barn",
   rating: 3.8,
-  photoReference: null,
-};
+});
 
 describe("RestaurantCard", () => {
   it("renders restaurant name, rating, and photo", () => {

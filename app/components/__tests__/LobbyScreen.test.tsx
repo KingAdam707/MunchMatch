@@ -7,6 +7,7 @@ import { render, screen } from "@testing-library/react";
 import LobbyScreen from "../LobbyScreen";
 import { AuthContext } from "@/app/context/AuthContext";
 import type { Session } from "@/types";
+import { makeRestaurant } from "@/test-utils/restaurant";
 
 // Mock firebase/firestore
 const mockOnSnapshot = jest.fn();
@@ -44,10 +45,10 @@ const mockSession: Session = {
   hostUid: "host-uid",
   state: "lobby",
   restaurants: [
-    { id: "r1", displayName: "Pizza Place", rating: 4.5, photoReference: null },
+    makeRestaurant({ id: "r1", displayName: "Pizza Place", rating: 4.5 }),
   ],
   matchedRestaurantId: null,
-  createdAt: { seconds: 0, nanoseconds: 0 } as any,
+  createdAt: new Date(0),
 };
 
 function renderWithAuth(ui: React.ReactElement, uid = "host-uid") {

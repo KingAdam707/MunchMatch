@@ -1,5 +1,8 @@
 import * as fc from "fast-check";
 import type { TagSet, Restaurant } from "@/types";
+import { restaurantExtraFieldsArb } from "@/test-utils/restaurant";
+import { fetchRestaurants } from "../places-client";
+import { isCacheComplete } from "@/app/lib/cache";
 
 /**
  * Property-based tests for Session Creation (Task 5).
@@ -21,12 +24,13 @@ const restaurantArb = fc.record({
   displayName: fc.string({ minLength: 1, maxLength: 100 }),
   rating: fc.float({ min: 0, max: 5 }),
   photoReference: fc.oneof(fc.constant(null), fc.string({ minLength: 1 })),
+  ...restaurantExtraFieldsArb,
 });
 
 describe("Property-based tests: Session Creation", () => {
   /**
    * Property P4: For any TagSet, fetchRestaurants request always includes
-   * correct field mask and maxResultCount: 5
+   * correct field mask and maxResultCount: 10
    *
    * Validates: Requirements 4.2, 4.3, 10.1, 10.5
    */
@@ -55,8 +59,6 @@ describe("Property-based tests: Session Creation", () => {
         }) as jest.Mock;
 
         try {
-          // Import and call fetchRestaurants
-          const { fetchRestaurants } = require("../places-client");
           await fetchRestaurants(tagSet);
 
           // Restore fetch
@@ -66,22 +68,29 @@ describe("Property-based tests: Session Creation", () => {
             return false;
           }
 
+          // TS narrows `capturedRequest` to `never` here because the reassignment
+          // happens inside the fetch mock closure — cast back to the known shape.
+          const { headers, body: rawBody } = capturedRequest as {
+            headers: Headers;
+            body: string;
+          };
+
           // Verify field mask
-          const fieldMask = capturedRequest.headers.get("X-Goog-FieldMask");
+          const fieldMask = headers.get("X-Goog-FieldMask");
           const expectedFieldMask =
-            "places.id,places.displayName,places.rating,places.photos";
+            "places.id,places.displayName,places.rating,places.photos,places.formattedAddress,places.priceLevel,places.websiteUri,places.googleMapsUri,places.currentOpeningHours,places.location";
           if (fieldMask !== expectedFieldMask) {
             return false;
           }
 
           // Verify maxResultCount
-          const body = JSON.parse(capturedRequest.body);
-          if (body.maxResultCount !== 5) {
+          const body = JSON.parse(rawBody);
+          if (body.maxResultCount !== 10) {
             return false;
           }
 
           return true;
-        } catch (err) {
+        } catch {
           global.fetch = originalFetch;
           return false;
         }
@@ -123,11 +132,11 @@ describe("Property-based tests: Session Creation", () => {
           }) as jest.Mock;
 
           try {
-            const { fetchRestaurants } = require("../places-client");
             const result: Restaurant[] = await fetchRestaurants({
               cuisine: "test",
               budget: "medium",
               groupSize: 2,
+              location: "",
             });
 
             global.fetch = originalFetch;
@@ -145,7 +154,7 @@ describe("Property-based tests: Session Creation", () => {
             }
 
             return true;
-          } catch (err) {
+          } catch {
             global.fetch = originalFetch;
             return false;
           }
@@ -165,8 +174,6 @@ describe("Property-based tests: Session Creation", () => {
    * For now, we verify the isCacheComplete function behavior.
    */
   it("Feature: restaurant-voting-app, Property 6: Cache prevents re-fetch for complete sessions", () => {
-    const { isCacheComplete } = require("@/app/lib/cache");
-
     fc.assert(
       fc.property(
         fc.record({

@@ -102,6 +102,7 @@ export default function RestaurantCard({
   const rotate = useTransform(x, [-200, 200], [-15, 15]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 

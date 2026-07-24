@@ -1,12 +1,12 @@
 import { buildGoogleMapsDeepLink, buildUberEatsDeepLink } from "../deep-links";
 import type { Restaurant } from "@/types";
+import { makeRestaurant } from "@/test-utils/restaurant";
 
-const baseRestaurant: Restaurant = {
+const baseRestaurant: Restaurant = makeRestaurant({
   id: "ChIJN1t_tDeuEmsRUsoyG83frY4",
   displayName: "The Burger Joint",
   rating: 4.5,
-  photoReference: null,
-};
+});
 
 describe("buildGoogleMapsDeepLink", () => {
   it("returns a non-null URL for a restaurant with a valid id", () => {

@@ -1,9 +1,9 @@
 import { isCacheComplete } from "../cache";
 import type { Session, Restaurant } from "@/types";
-import type { Timestamp } from "firebase/firestore";
+import { makeRestaurant } from "@/test-utils/restaurant";
 
-// Minimal mock Timestamp — only the shape matters for these tests
-const mockTimestamp = {} as Timestamp;
+// isCacheComplete doesn't inspect createdAt — only its presence matters here
+const mockTimestamp = {} as Date;
 
 function makeSession(restaurants: Restaurant[]): Session {
   return {
@@ -16,19 +16,19 @@ function makeSession(restaurants: Restaurant[]): Session {
   };
 }
 
-const completeRestaurant: Restaurant = {
+const completeRestaurant: Restaurant = makeRestaurant({
   id: "r1",
   displayName: "Pizza Place",
   rating: 4.2,
   photoReference: "photo-ref-123",
-};
+});
 
-const completeRestaurantNullPhoto: Restaurant = {
+const completeRestaurantNullPhoto: Restaurant = makeRestaurant({
   id: "r2",
   displayName: "Burger Bar",
   rating: 4.5,
-  photoReference: null, // null is valid — key must exist
-};
+  // photoReference stays null — null is valid, the key must exist
+});
 
 describe("isCacheComplete", () => {
   it("returns true for a session with all required fields present", () => {

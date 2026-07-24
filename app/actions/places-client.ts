@@ -4,6 +4,20 @@ import type { TagSet, Restaurant } from "@/types";
 import { PlacesAPIError } from "@/app/lib/errors";
 import type { SearchFiltersState } from "@/app/components/SearchFilters";
 
+/** Shape of a single place in the Google Places API (New) searchText response. */
+interface PlacesApiPlace {
+  id?: string;
+  displayName?: { text?: string };
+  rating?: number;
+  photos?: Array<{ name?: string }>;
+  formattedAddress?: string;
+  priceLevel?: string;
+  websiteUri?: string;
+  googleMapsUri?: string;
+  currentOpeningHours?: { openNow?: boolean; weekdayDescriptions?: string[] };
+  location?: { latitude: number; longitude: number };
+}
+
 /**
  * Haversine formula: straight-line distance between two coordinates in km.
  */
@@ -120,15 +134,14 @@ export async function fetchRestaurants(
     const data = await response.json();
 
     // Map response and optionally filter out closed restaurants
-    const places = data.places || [];
+    const places: PlacesApiPlace[] = data.places || [];
     const showClosed = filters?.showClosed ?? false;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mapped: Restaurant[] = places
       .filter(
-        (place: any) =>
+        (place) =>
           showClosed || place.currentOpeningHours?.openNow !== false
       )
-      .map((place: any) => ({
+      .map((place) => ({
         id: place.id || "",
         displayName: place.displayName?.text || "Unknown Restaurant",
         rating: place.rating || 0,
@@ -138,7 +151,7 @@ export async function fetchRestaurants(
         photos: (place.photos || [])
           .slice(0, 5)
           .map(
-            (photo: any) =>
+            (photo) =>
               `https://places.googleapis.com/v1/${photo.name}/media?maxWidthPx=400&key=${apiKey}`
           ),
         address: place.formattedAddress || null,

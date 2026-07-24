@@ -5,12 +5,12 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import PromptForm from "../PromptForm";
-import { AuthContext } from "@/app/context/AuthContext";
+import { AuthContext, type AuthContextValue } from "@/app/context/AuthContext";
 
 // Helper to render PromptForm with a given auth state
 function renderWithAuth(
   ui: React.ReactElement,
-  authValue = { uid: "test-uid", authError: null, loading: false }
+  authValue: AuthContextValue = { uid: "test-uid", authError: null, loading: false }
 ) {
   return render(
     <AuthContext.Provider value={authValue}>{ui}</AuthContext.Provider>

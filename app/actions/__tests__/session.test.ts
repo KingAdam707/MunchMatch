@@ -4,6 +4,7 @@ import { fetchRestaurants } from "../places-client";
 import { AIParserError, PlacesAPIError } from "@/app/lib/errors";
 import { validatePrompt } from "@/app/lib/validation";
 import { adminDb } from "@/app/lib/firebase-admin";
+import { makeRestaurant } from "@/test-utils/restaurant";
 
 // Mock dependencies
 jest.mock("../ai-parser");
@@ -45,18 +46,17 @@ describe("createSession", () => {
 
     // Mock Places API success
     mockFetchRestaurants.mockResolvedValue([
-      {
+      makeRestaurant({
         id: "place-1",
         displayName: "Taco Palace",
         rating: 4.5,
         photoReference: "photo-ref-1",
-      },
-      {
+      }),
+      makeRestaurant({
         id: "place-2",
         displayName: "Burrito Bar",
         rating: 4.2,
-        photoReference: null,
-      },
+      }),
     ]);
 
     // Mock Firestore write success
@@ -88,6 +88,7 @@ describe("createSession", () => {
         groupSize: 4,
         location: "Belfast",
       },
+      undefined,
       undefined
     );
   });
@@ -154,12 +155,11 @@ describe("createSession", () => {
       location: "",
     });
     mockFetchRestaurants.mockResolvedValue([
-      {
+      makeRestaurant({
         id: "place-1",
         displayName: "Sushi Spot",
         rating: 4.0,
-        photoReference: null,
-      },
+      }),
     ]);
 
     // Mock Firestore write failure (all 3 attempts fail)
