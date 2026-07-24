@@ -152,6 +152,37 @@ describe("SessionPage", () => {
     });
   });
 
+  it('renders a permission-denied error distinctly from "Session not found"', async () => {
+    mockOnSnapshot.mockImplementation((ref, onNext, onError) => {
+      onError({ code: "permission-denied", message: "Missing or insufficient permissions." });
+      return jest.fn();
+    });
+
+    renderWithAuth();
+
+    await waitFor(() => {
+      expect(screen.getByText("Couldn't load session")).toBeInTheDocument();
+    });
+    expect(screen.queryByText("Session not found")).not.toBeInTheDocument();
+    expect(screen.getByText(/Firestore security rules/i)).toBeInTheDocument();
+  });
+
+  it("renders a generic load error with the Firestore error message for non-permission errors", async () => {
+    mockOnSnapshot.mockImplementation((ref, onNext, onError) => {
+      onError({ code: "unavailable", message: "The service is currently unavailable." });
+      return jest.fn();
+    });
+
+    renderWithAuth();
+
+    await waitFor(() => {
+      expect(screen.getByText("Couldn't load session")).toBeInTheDocument();
+    });
+    expect(
+      screen.getByText("Failed to load session: The service is currently unavailable.")
+    ).toBeInTheDocument();
+  });
+
   it("renders Match screen for match state", async () => {
     mockOnSnapshot.mockImplementation((ref, onNext) => {
       onNext({

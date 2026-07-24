@@ -40,6 +40,7 @@ export default function SessionPage() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [sessionFull, setSessionFull] = useState(false);
   const [joinError, setJoinError] = useState<string | null>(null);
   const [showNameModal, setShowNameModal] = useState(false);
@@ -123,7 +124,13 @@ export default function SessionPage() {
       },
       (err) => {
         console.error("Session snapshot error:", err);
-        setNotFound(true);
+        if (err.code === "permission-denied") {
+          setLoadError(
+            "You don't have permission to view this session. This usually means the app's Firestore security rules haven't been deployed to the live Firebase project."
+          );
+        } else {
+          setLoadError(`Failed to load session: ${err.message}`);
+        }
         setLoading(false);
       }
     );
@@ -278,6 +285,15 @@ export default function SessionPage() {
         <p className="text-zinc-600 text-center max-w-sm">
           This session doesn&apos;t exist or may have been deleted.
         </p>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-zinc-50 px-4" role="alert">
+        <h1 className="text-xl font-semibold text-zinc-900">Couldn&apos;t load session</h1>
+        <p className="text-red-600 text-center max-w-sm">{loadError}</p>
       </div>
     );
   }
